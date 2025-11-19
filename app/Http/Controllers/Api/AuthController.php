@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -170,6 +171,51 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Login failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Logout user
+     * 
+     * Revoke the current authentication token and log out the user.
+     * This endpoint requires authentication via Bearer token.
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Logged out successfully"
+     * }
+     * @response 401 {
+     *   "message": "Unauthenticated."
+     * }
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        try {
+            /** @var User $user */
+            $user = $request->user();
+
+            // Revoke the current token
+            /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+            $token = $user->currentAccessToken();
+            if ($token) {
+                $token->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout failed',
                 'error' => $e->getMessage(),
             ], 500);
         }

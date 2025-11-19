@@ -7,6 +7,10 @@ Route::prefix('auth')->group(function () {
     // Public routes
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    // Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    
+    // Protected routes (require authentication)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+    });
 });
 
