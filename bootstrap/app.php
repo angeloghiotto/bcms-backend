@@ -13,7 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+        
+        // Handle CORS for API requests - disable CSRF for API routes
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
