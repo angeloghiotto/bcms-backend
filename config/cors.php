@@ -20,7 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:8080'),
+        env('FRONTEND_URL', 'http://localhost:8081'),
     ],
 
     'allowed_origins_patterns' => [],

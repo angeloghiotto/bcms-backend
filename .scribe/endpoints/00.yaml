@@ -185,7 +185,8 @@ endpoints:
                 "id": 1,
                 "name": "John Doe",
                 "email": "john@example.com",
-                "created_at": "2024-01-01T00:00:00.000000Z"
+                "created_at": "2024-01-01T00:00:00.000000Z",
+                "admin": false
               },
               "token": "1|xxxxxxxxxxxxx"
             }

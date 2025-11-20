@@ -109,7 +109,8 @@ class AuthController extends Controller
      *       "id": 1,
      *       "name": "John Doe",
      *       "email": "john@example.com",
-     *       "created_at": "2024-01-01T00:00:00.000000Z"
+     *       "created_at": "2024-01-01T00:00:00.000000Z",
+     *       "admin": false
      *     },
      *     "token": "1|xxxxxxxxxxxxx"
      *   }
@@ -157,6 +158,7 @@ class AuthController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'created_at' => $user->created_at,
+                        'admin' => $user->admin,
                     ],
                     'token' => $token,
                 ],
