@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @group Posts Management
@@ -105,7 +106,7 @@ class PostController extends Controller
      * @bodyParam post_category_id integer required The ID of the post category. Example: 1
      * @bodyParam title string required The post title. Example: Sample Post
      * @bodyParam content string required The post content. Example: This is the post content
-     * @bodyParam image_url string nullable The URL of the post image. Example: https://example.com/image.jpg
+     * @bodyParam image file nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB)
      *
      * @response 201 {
      *   "success": true,
@@ -154,6 +155,52 @@ class PostController extends Controller
     {
         try {
             $validated = $request->validated();
+            
+            // Handle image upload to R2/S3
+            if ($request->hasFile('image')) {
+                // Validate S3/R2 configuration
+                $bucket = config('filesystems.disks.s3.bucket');
+                if (empty($bucket)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'S3/R2 bucket is not configured. Please set R2_POSTS_BUCKET, R2_BUCKET, or AWS_BUCKET in your .env file.',
+                    ], 500);
+                }
+                
+                $image = $request->file('image');
+                $imagePath = $image->store('posts', 's3');
+                
+                // Generate URL using R2_PUBLIC_URL_POSTS for post images
+                $publicUrl = env('R2_PUBLIC_URL_POSTS');
+                if ($publicUrl) {
+                    $imageUrl = rtrim($publicUrl, '/') . '/' . $imagePath;
+                } else {
+                    // Fallback to standard URL construction if R2_PUBLIC_URL_POSTS is not set
+                    $bucket = config('filesystems.disks.s3.bucket');
+                    $endpoint = config('filesystems.disks.s3.endpoint');
+                    $region = config('filesystems.disks.s3.region');
+                    $customUrl = config('filesystems.disks.s3.url');
+                    $usePathStyle = config('filesystems.disks.s3.use_path_style_endpoint', false);
+                    
+                    if ($customUrl) {
+                        $imageUrl = rtrim($customUrl, '/') . '/' . $imagePath;
+                    } elseif ($endpoint) {
+                        if ($usePathStyle) {
+                            $imageUrl = rtrim($endpoint, '/') . '/' . $bucket . '/' . $imagePath;
+                        } else {
+                            $imageUrl = rtrim($endpoint, '/') . '/' . $imagePath;
+                        }
+                    } else {
+                        $imageUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$imagePath}";
+                    }
+                }
+                
+                $validated['image_url'] = $imageUrl;
+            }
+            
+            // Remove image from validated data as it's not a database field
+            unset($validated['image']);
+            
             $post = Post::create($validated);
             $post->load(['user', 'client', 'category']);
 
@@ -254,7 +301,7 @@ class PostController extends Controller
      * @bodyParam post_category_id integer sometimes The ID of the post category. Example: 1
      * @bodyParam title string sometimes The post title. Example: Sample Post Updated
      * @bodyParam content string sometimes The post content. Example: This is the updated post content
-     * @bodyParam image_url string nullable The URL of the post image. Example: https://example.com/image.jpg
+     * @bodyParam image file nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB)
      *
      * @response 200 {
      *   "success": true,
@@ -308,6 +355,96 @@ class PostController extends Controller
         try {
             $post = Post::findOrFail($id);
             $validated = $request->validated();
+            
+            // Handle image upload to R2/S3
+            if ($request->hasFile('image')) {
+                // Validate S3/R2 configuration
+                $bucket = config('filesystems.disks.s3.bucket');
+                if (empty($bucket)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'S3/R2 bucket is not configured. Please set R2_POSTS_BUCKET, R2_BUCKET, or AWS_BUCKET in your .env file.',
+                    ], 500);
+                }
+                
+                // Delete old image from R2 if it exists
+                if ($post->image_url) {
+                    try {
+                        $oldImageUrl = $post->image_url;
+                        $publicUrl = env('R2_PUBLIC_URL_POSTS');
+                        
+                        // Extract path from URL
+                        if ($publicUrl) {
+                            // Extract path from R2_PUBLIC_URL_POSTS
+                            $baseUrl = rtrim($publicUrl, '/') . '/';
+                            if (strpos($oldImageUrl, $baseUrl) === 0) {
+                                $oldImagePath = substr($oldImageUrl, strlen($baseUrl));
+                                Storage::disk('s3')->delete($oldImagePath);
+                            }
+                        } else {
+                            // Fallback: try to extract from endpoint or standard S3 URL
+                            $bucket = config('filesystems.disks.s3.bucket');
+                            $endpoint = config('filesystems.disks.s3.endpoint');
+                            
+                            if ($endpoint) {
+                                $baseUrl = rtrim($endpoint, '/') . '/' . $bucket . '/';
+                                if (strpos($oldImageUrl, $baseUrl) === 0) {
+                                    $oldImagePath = substr($oldImageUrl, strlen($baseUrl));
+                                    Storage::disk('s3')->delete($oldImagePath);
+                                }
+                            } else {
+                                // Standard S3: extract path after bucket
+                                $parsedUrl = parse_url($oldImageUrl);
+                                if (isset($parsedUrl['path'])) {
+                                    $oldImagePath = ltrim($parsedUrl['path'], '/');
+                                    // Remove bucket name from path if present
+                                    if (strpos($oldImagePath, $bucket . '/') === 0) {
+                                        $oldImagePath = substr($oldImagePath, strlen($bucket . '/'));
+                                    }
+                                    Storage::disk('s3')->delete($oldImagePath);
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Log error but continue with new upload
+                    }
+                }
+                
+                // Upload new image
+                $image = $request->file('image');
+                $imagePath = $image->store('posts', 's3');
+                
+                // Generate URL using R2_PUBLIC_URL_POSTS for post images
+                $publicUrl = env('R2_PUBLIC_URL_POSTS');
+                if ($publicUrl) {
+                    $imageUrl = rtrim($publicUrl, '/') . '/' . $imagePath;
+                } else {
+                    // Fallback to standard URL construction if R2_PUBLIC_URL_POSTS is not set
+                    $bucket = config('filesystems.disks.s3.bucket');
+                    $endpoint = config('filesystems.disks.s3.endpoint');
+                    $region = config('filesystems.disks.s3.region');
+                    $customUrl = config('filesystems.disks.s3.url');
+                    $usePathStyle = config('filesystems.disks.s3.use_path_style_endpoint', false);
+                    
+                    if ($customUrl) {
+                        $imageUrl = rtrim($customUrl, '/') . '/' . $imagePath;
+                    } elseif ($endpoint) {
+                        if ($usePathStyle) {
+                            $imageUrl = rtrim($endpoint, '/') . '/' . $bucket . '/' . $imagePath;
+                        } else {
+                            $imageUrl = rtrim($endpoint, '/') . '/' . $imagePath;
+                        }
+                    } else {
+                        $imageUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$imagePath}";
+                    }
+                }
+                
+                $validated['image_url'] = $imageUrl;
+            }
+            
+            // Remove image from validated data as it's not a database field
+            unset($validated['image']);
+            
             $post->update($validated);
             $post->load(['user', 'client', 'category']);
 

@@ -3784,17 +3784,14 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <div class="bash-example">
     <pre><code class="language-bash">curl --request POST \
     "http://localhost/api/posts" \
-    --header "Content-Type: application/json" \
+    --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --data "{
-    \"user_id\": 1,
-    \"client_id\": 1,
-    \"post_category_id\": 1,
-    \"title\": \"Sample Post\",
-    \"content\": \"This is the post content\",
-    \"image_url\": \"https:\\/\\/example.com\\/image.jpg\"
-}"
-</code></pre></div>
+    --form "user_id=1"\
+    --form "client_id=1"\
+    --form "post_category_id=1"\
+    --form "title=Sample Post"\
+    --form "content=This is the post content"\
+    --form "image=@/tmp/php6jfctm33aunsdPJzPk9" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -3803,23 +3800,22 @@ You can check the Dev Tools console for debugging information.</code></pre>
 );
 
 const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
     "Accept": "application/json",
 };
 
-let body = {
-    "user_id": 1,
-    "client_id": 1,
-    "post_category_id": 1,
-    "title": "Sample Post",
-    "content": "This is the post content",
-    "image_url": "https:\/\/example.com\/image.jpg"
-};
+const body = new FormData();
+body.append('user_id', '1');
+body.append('client_id', '1');
+body.append('post_category_id', '1');
+body.append('title', 'Sample Post');
+body.append('content', 'This is the post content');
+body.append('image', document.querySelector('input[name="image"]').files[0]);
 
 fetch(url, {
     method: "POST",
     headers,
-    body: JSON.stringify(body),
+    body,
 }).then(response =&gt; response.json());</code></pre></div>
 
 </span>
@@ -3905,7 +3901,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <form id="form-POSTapi-posts" data-method="POST"
       data-path="api/posts"
       data-authed="1"
-      data-hasfiles="0"
+      data-hasfiles="1"
       data-isarraybody="0"
       autocomplete="off"
       onsubmit="event.preventDefault(); executeTryOut('POSTapi-posts', this);">
@@ -3941,10 +3937,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Content-Type"                data-endpoint="POSTapi-posts"
-               value="application/json"
+               value="multipart/form-data"
                data-component="header">
     <br>
-<p>Example: <code>application/json</code></p>
+<p>Example: <code>multipart/form-data</code></p>
             </div>
                                 <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
@@ -4020,16 +4016,16 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>The post content. Example: <code>This is the post content</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>image_url</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+            <b style="line-height: 2;"><code>image</code></b>&nbsp;&nbsp;
+<small>file</small>&nbsp;
 <i>optional</i> &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="image_url"                data-endpoint="POSTapi-posts"
-               value="https://example.com/image.jpg"
+                <input type="file" style="display: none"
+                              name="image"                data-endpoint="POSTapi-posts"
+               value=""
                data-component="body">
     <br>
-<p>nullable The URL of the post image. Example: <code>https://example.com/image.jpg</code></p>
+<p>nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB) Example: <code>/tmp/php6jfctm33aunsdPJzPk9</code></p>
         </div>
         </form>
 
@@ -4224,17 +4220,14 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <div class="bash-example">
     <pre><code class="language-bash">curl --request PUT \
     "http://localhost/api/posts/1" \
-    --header "Content-Type: application/json" \
+    --header "Content-Type: multipart/form-data" \
     --header "Accept: application/json" \
-    --data "{
-    \"user_id\": 1,
-    \"client_id\": 1,
-    \"post_category_id\": 1,
-    \"title\": \"Sample Post Updated\",
-    \"content\": \"This is the updated post content\",
-    \"image_url\": \"https:\\/\\/example.com\\/image.jpg\"
-}"
-</code></pre></div>
+    --form "user_id=1"\
+    --form "client_id=1"\
+    --form "post_category_id=1"\
+    --form "title=Sample Post Updated"\
+    --form "content=This is the updated post content"\
+    --form "image=@/tmp/php5bo0ot9b4b6r5zm4NMA" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -4243,23 +4236,22 @@ You can check the Dev Tools console for debugging information.</code></pre>
 );
 
 const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
     "Accept": "application/json",
 };
 
-let body = {
-    "user_id": 1,
-    "client_id": 1,
-    "post_category_id": 1,
-    "title": "Sample Post Updated",
-    "content": "This is the updated post content",
-    "image_url": "https:\/\/example.com\/image.jpg"
-};
+const body = new FormData();
+body.append('user_id', '1');
+body.append('client_id', '1');
+body.append('post_category_id', '1');
+body.append('title', 'Sample Post Updated');
+body.append('content', 'This is the updated post content');
+body.append('image', document.querySelector('input[name="image"]').files[0]);
 
 fetch(url, {
     method: "PUT",
     headers,
-    body: JSON.stringify(body),
+    body,
 }).then(response =&gt; response.json());</code></pre></div>
 
 </span>
@@ -4352,7 +4344,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <form id="form-PUTapi-posts--id-" data-method="PUT"
       data-path="api/posts/{id}"
       data-authed="1"
-      data-hasfiles="0"
+      data-hasfiles="1"
       data-isarraybody="0"
       autocomplete="off"
       onsubmit="event.preventDefault(); executeTryOut('PUTapi-posts--id-', this);">
@@ -4388,10 +4380,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Content-Type"                data-endpoint="PUTapi-posts--id-"
-               value="application/json"
+               value="multipart/form-data"
                data-component="header">
     <br>
-<p>Example: <code>application/json</code></p>
+<p>Example: <code>multipart/form-data</code></p>
             </div>
                                 <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
@@ -4480,16 +4472,16 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>sometimes The post content. Example: <code>This is the updated post content</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>image_url</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+            <b style="line-height: 2;"><code>image</code></b>&nbsp;&nbsp;
+<small>file</small>&nbsp;
 <i>optional</i> &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="image_url"                data-endpoint="PUTapi-posts--id-"
-               value="https://example.com/image.jpg"
+                <input type="file" style="display: none"
+                              name="image"                data-endpoint="PUTapi-posts--id-"
+               value=""
                data-component="body">
     <br>
-<p>nullable The URL of the post image. Example: <code>https://example.com/image.jpg</code></p>
+<p>nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB) Example: <code>/tmp/php5bo0ot9b4b6r5zm4NMA</code></p>
         </div>
         </form>
 

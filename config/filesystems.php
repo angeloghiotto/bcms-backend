@@ -47,15 +47,30 @@ return [
             'report' => false,
         ],
 
+        /*
+         * S3 / R2 Configuration
+         * 
+         * Supports both AWS S3 and Cloudflare R2 (S3-compatible API).
+         * 
+         * For R2, use these environment variables:
+         * R2_ACCESS_KEY_ID=your_r2_access_key_id
+         * R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+         * R2_POSTS_BUCKET=your_posts_bucket_name (or R2_BUCKET for general bucket)
+         * R2_ENDPOINT=https://your_account_id.r2.cloudflarestorage.com
+         * R2_REGION=auto (or any value, R2 doesn't use regions)
+         * R2_USE_PATH_STYLE_ENDPOINT=false
+         * 
+         * Alternatively, you can use AWS_ prefixed variables for compatibility.
+         */
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'key' => env('R2_ACCESS_KEY_ID') ?: env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY') ?: env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('R2_REGION') ?: env('AWS_DEFAULT_REGION', 'auto'),
+            'bucket' => env('R2_POSTS_BUCKET') ?: env('R2_BUCKET') ?: env('AWS_BUCKET'),
+            'url' => env('R2_URL') ?: env('AWS_URL'),
+            'endpoint' => env('R2_ENDPOINT') ?: env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('R2_USE_PATH_STYLE_ENDPOINT') !== null ? (bool) env('R2_USE_PATH_STYLE_ENDPOINT') : (env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
             'throw' => false,
             'report' => false,
         ],

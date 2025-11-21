@@ -154,7 +154,7 @@ endpoints:
       authenticated: true
       deprecated: false
     headers:
-      Content-Type: application/json
+      Content-Type: multipart/form-data
       Accept: application/json
     urlParameters: []
     cleanUrlParameters: []
@@ -216,15 +216,15 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-      image_url:
+      image:
         custom: []
-        name: image_url
-        description: 'nullable The URL of the post image.'
+        name: image
+        description: 'nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB)'
         required: false
-        example: 'https://example.com/image.jpg'
-        type: string
+        example: null
+        type: file
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
@@ -233,8 +233,8 @@ endpoints:
       post_category_id: 1
       title: 'Sample Post'
       content: 'This is the post content'
-      image_url: 'https://example.com/image.jpg'
-    fileParameters: []
+    fileParameters:
+      image: null
     responses:
       -
         custom: []
@@ -413,7 +413,7 @@ endpoints:
       authenticated: true
       deprecated: false
     headers:
-      Content-Type: application/json
+      Content-Type: multipart/form-data
       Accept: application/json
     urlParameters:
       id:
@@ -487,15 +487,15 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-      image_url:
+      image:
         custom: []
-        name: image_url
-        description: 'nullable The URL of the post image.'
+        name: image
+        description: 'nullable The post image file (jpeg, jpg, png, gif, webp, max 10MB)'
         required: false
-        example: 'https://example.com/image.jpg'
-        type: string
+        example: null
+        type: file
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
@@ -504,8 +504,8 @@ endpoints:
       post_category_id: 1
       title: 'Sample Post Updated'
       content: 'This is the updated post content'
-      image_url: 'https://example.com/image.jpg'
-    fileParameters: []
+    fileParameters:
+      image: null
     responses:
       -
         custom: []

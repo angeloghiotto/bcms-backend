@@ -27,7 +27,7 @@ class UpdatePostRequest extends FormRequest
             'post_category_id' => ['sometimes', 'required', 'integer', 'exists:posts_categories,id'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'content' => ['sometimes', 'required', 'string'],
-            'image_url' => ['nullable', 'string', 'url', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:10240'], // 10MB max
         ];
     }
 
@@ -47,7 +47,9 @@ class UpdatePostRequest extends FormRequest
             'post_category_id.exists' => 'The selected post category does not exist.',
             'title.required' => 'The title field is required.',
             'content.required' => 'The content field is required.',
-            'image_url.url' => 'The image URL must be a valid URL.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'The image must be a file of type: jpeg, jpg, png, gif, webp.',
+            'image.max' => 'The image may not be greater than 10MB.',
         ];
     }
 }
