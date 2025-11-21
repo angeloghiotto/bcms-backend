@@ -365,6 +365,82 @@ class ClientController extends Controller
     }
 
     /**
+     * Get users attached to a client
+     *
+     * Retrieve a list of all users associated with a specific client.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the client. Example: 1
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "John Doe",
+     *       "email": "john@example.com",
+     *       "admin": false,
+     *       "pivot": {
+     *         "client_id": 1,
+     *         "user_id": 1,
+     *         "created_at": "2024-01-01T00:00:00.000000Z",
+     *         "updated_at": "2024-01-01T00:00:00.000000Z"
+     *       }
+     *     },
+     *     {
+     *       "id": 2,
+     *       "name": "Jane Smith",
+     *       "email": "jane@example.com",
+     *       "admin": false,
+     *       "pivot": {
+     *         "client_id": 1,
+     *         "user_id": 2,
+     *         "created_at": "2024-01-01T00:00:00.000000Z",
+     *         "updated_at": "2024-01-01T00:00:00.000000Z"
+     *       }
+     *     }
+     *   ]
+     * }
+     * @response 403 {
+     *   "success": false,
+     *   "message": "Unauthorized. Admin access required."
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Client not found"
+     * }
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function users(int $id): JsonResponse
+    {
+        try {
+            $client = Client::findOrFail($id);
+            $users = $client->users()->select('users.id', 'users.name', 'users.email', 'users.admin')
+                ->withPivot('created_at', 'updated_at')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $users,
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client not found',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve users',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Associate a user to a client
      *
      * Attach a user to a client, creating the association in the pivot table.
