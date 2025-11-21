@@ -111,6 +111,9 @@
                                                                                 <li class="tocify-item level-2" data-unique="clients-management-DELETEapi-clients--id-">
                                 <a href="#clients-management-DELETEapi-clients--id-">Delete a client</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="clients-management-GETapi-my-clients">
+                                <a href="#clients-management-GETapi-my-clients">Get authenticated user's clients</a>
+                            </li>
                                                                         </ul>
                             </ul>
                     <ul id="tocify-header-posts-management" class="tocify-header">
@@ -2462,6 +2465,158 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>The ID of the client. Example: <code>1</code></p>
             </div>
                     </form>
+
+                    <h2 id="clients-management-GETapi-my-clients">Get authenticated user&#039;s clients</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+<p>Retrieve all clients associated with the authenticated user.</p>
+
+<span id="example-requests-GETapi-my-clients">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/my-clients" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/my-clients"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-my-clients">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;data&quot;: [
+        {
+            &quot;id&quot;: 1,
+            &quot;name&quot;: &quot;Acme Corporation&quot;,
+            &quot;email&quot;: &quot;contact@acme.com&quot;,
+            &quot;phone&quot;: &quot;+1234567890&quot;,
+            &quot;website&quot;: &quot;https://acme.com&quot;,
+            &quot;address&quot;: &quot;123 Main St&quot;,
+            &quot;city&quot;: &quot;New York&quot;,
+            &quot;state&quot;: &quot;NY&quot;,
+            &quot;country&quot;: &quot;USA&quot;,
+            &quot;postal_code&quot;: &quot;10001&quot;,
+            &quot;notes&quot;: &quot;Important client&quot;,
+            &quot;created_at&quot;: &quot;2024-01-01T00:00:00.000000Z&quot;,
+            &quot;updated_at&quot;: &quot;2024-01-01T00:00:00.000000Z&quot;,
+            &quot;pivot&quot;: {
+                &quot;user_id&quot;: 1,
+                &quot;client_id&quot;: 1,
+                &quot;created_at&quot;: &quot;2024-01-01T00:00:00.000000Z&quot;,
+                &quot;updated_at&quot;: &quot;2024-01-01T00:00:00.000000Z&quot;
+            }
+        }
+    ]
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-my-clients" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-my-clients"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-my-clients"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-my-clients" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-my-clients">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-my-clients" data-method="GET"
+      data-path="api/my-clients"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-my-clients', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-my-clients"
+                    onclick="tryItOut('GETapi-my-clients');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-my-clients"
+                    onclick="cancelTryOut('GETapi-my-clients');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-my-clients"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/my-clients</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-my-clients"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-my-clients"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
 
                 <h1 id="posts-management">Posts Management</h1>
 

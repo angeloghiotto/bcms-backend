@@ -51,3 +51,6 @@ Route::middleware('auth:sanctum')->prefix('posts')->group(function () {
     Route::delete('/{id}', [PostController::class, 'destroy']);
 });
 
+// User's own clients route (require authentication)
+Route::middleware('auth:sanctum')->get('/my-clients', [ClientController::class, 'myClients']);
+

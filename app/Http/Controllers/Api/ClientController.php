@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @group Clients Management
@@ -611,6 +612,65 @@ class ClientController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to dissociate user from client',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get authenticated user's clients
+     *
+     * Retrieve all clients associated with the authenticated user.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "Acme Corporation",
+     *       "email": "contact@acme.com",
+     *       "phone": "+1234567890",
+     *       "website": "https://acme.com",
+     *       "address": "123 Main St",
+     *       "city": "New York",
+     *       "state": "NY",
+     *       "country": "USA",
+     *       "postal_code": "10001",
+     *       "notes": "Important client",
+     *       "created_at": "2024-01-01T00:00:00.000000Z",
+     *       "updated_at": "2024-01-01T00:00:00.000000Z",
+     *       "pivot": {
+     *         "user_id": 1,
+     *         "client_id": 1,
+     *         "created_at": "2024-01-01T00:00:00.000000Z",
+     *         "updated_at": "2024-01-01T00:00:00.000000Z"
+     *       }
+     *     }
+     *   ]
+     * }
+     * @response 401 {
+     *   "message": "Unauthenticated."
+     * }
+     *
+     * @return JsonResponse
+     */
+    public function myClients(): JsonResponse
+    {
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+            $clients = $user->clients()->withPivot('created_at', 'updated_at')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $clients,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve clients',
                 'error' => $e->getMessage(),
             ], 500);
         }
