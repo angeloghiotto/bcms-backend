@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostCategoryRequest;
 use App\Http\Requests\UpdatePostCategoryRequest;
 use App\Models\PostCategory;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * @group Post Categories Management
@@ -21,12 +19,13 @@ class PostCategoryController extends Controller
     /**
      * Get all post categories
      *
-     * Retrieve a paginated list of all post categories for the authenticated user's client.
+     * Retrieve a paginated list of all post categories, optionally filtered by client_id.
      *
      * @authenticated
      *
      * @queryParam page integer The page number. Example: 1
      * @queryParam per_page integer Number of items per page (default: 15). Example: 15
+     * @queryParam client_id integer Filter categories by client ID. Example: 1
      *
      * @response 200 {
      *   "success": true,
@@ -48,10 +47,6 @@ class PostCategoryController extends Controller
      * @response 401 {
      *   "message": "Unauthenticated."
      * }
-     * @response 422 {
-     *   "success": false,
-     *   "message": "User is not associated with any client."
-     * }
      *
      * @param Request $request
      * @return JsonResponse
@@ -59,20 +54,15 @@ class PostCategoryController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            /** @var User $user */
-            $user = Auth::user();
-            $firstClient = $user->clients()->first();
+            $perPage = $request->get('per_page', 15);
+            $query = PostCategory::query();
 
-            if (!$firstClient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not associated with any client.',
-                ], 422);
+            // Filter by client_id if provided
+            if ($request->has('client_id')) {
+                $query->where('client_id', $request->get('client_id'));
             }
 
-            $perPage = $request->get('per_page', 15);
-            $categories = PostCategory::where('client_id', $firstClient->id)
-                ->paginate($perPage);
+            $categories = $query->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -90,10 +80,11 @@ class PostCategoryController extends Controller
     /**
      * Create a new post category
      *
-     * Create a new post category for the authenticated user's client.
+     * Create a new post category.
      *
      * @authenticated
      *
+     * @bodyParam client_id integer required The ID of the client. Example: 1
      * @bodyParam name string required The category name. Example: Category Name
      *
      * @response 201 {
@@ -112,7 +103,11 @@ class PostCategoryController extends Controller
      * }
      * @response 422 {
      *   "success": false,
-     *   "message": "User is not associated with any client."
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "client_id": ["The client ID field is required."],
+     *     "name": ["The name field is required."]
+     *   }
      * }
      *
      * @param StorePostCategoryRequest $request
@@ -121,20 +116,7 @@ class PostCategoryController extends Controller
     public function store(StorePostCategoryRequest $request): JsonResponse
     {
         try {
-            /** @var User $user */
-            $user = Auth::user();
-            $firstClient = $user->clients()->first();
-
-            if (!$firstClient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not associated with any client.',
-                ], 422);
-            }
-
             $validated = $request->validated();
-            $validated['client_id'] = $firstClient->id;
-
             $category = PostCategory::create($validated);
 
             return response()->json([
@@ -177,10 +159,6 @@ class PostCategoryController extends Controller
      *   "success": false,
      *   "message": "Post category not found"
      * }
-     * @response 422 {
-     *   "success": false,
-     *   "message": "User is not associated with any client."
-     * }
      *
      * @param int $id
      * @return JsonResponse
@@ -188,19 +166,7 @@ class PostCategoryController extends Controller
     public function show(int $id): JsonResponse
     {
         try {
-            /** @var User $user */
-            $user = Auth::user();
-            $firstClient = $user->clients()->first();
-
-            if (!$firstClient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not associated with any client.',
-                ], 422);
-            }
-
-            $category = PostCategory::where('client_id', $firstClient->id)
-                ->findOrFail($id);
+            $category = PostCategory::findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -228,6 +194,7 @@ class PostCategoryController extends Controller
      * @authenticated
      *
      * @urlParam id integer required The ID of the category. Example: 1
+     * @bodyParam client_id integer required The ID of the client. Example: 1
      * @bodyParam name string sometimes The category name. Example: Updated Category Name
      *
      * @response 200 {
@@ -250,7 +217,10 @@ class PostCategoryController extends Controller
      * }
      * @response 422 {
      *   "success": false,
-     *   "message": "User is not associated with any client."
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "client_id": ["The client ID field is required."]
+     *   }
      * }
      *
      * @param UpdatePostCategoryRequest $request
@@ -260,20 +230,7 @@ class PostCategoryController extends Controller
     public function update(UpdatePostCategoryRequest $request, int $id): JsonResponse
     {
         try {
-            /** @var User $user */
-            $user = Auth::user();
-            $firstClient = $user->clients()->first();
-
-            if (!$firstClient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not associated with any client.',
-                ], 422);
-            }
-
-            $category = PostCategory::where('client_id', $firstClient->id)
-                ->findOrFail($id);
-
+            $category = PostCategory::findOrFail($id);
             $validated = $request->validated();
             $category->update($validated);
 
@@ -316,10 +273,6 @@ class PostCategoryController extends Controller
      *   "success": false,
      *   "message": "Post category not found"
      * }
-     * @response 422 {
-     *   "success": false,
-     *   "message": "User is not associated with any client."
-     * }
      *
      * @param int $id
      * @return JsonResponse
@@ -327,20 +280,7 @@ class PostCategoryController extends Controller
     public function destroy(int $id): JsonResponse
     {
         try {
-            /** @var User $user */
-            $user = Auth::user();
-            $firstClient = $user->clients()->first();
-
-            if (!$firstClient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not associated with any client.',
-                ], 422);
-            }
-
-            $category = PostCategory::where('client_id', $firstClient->id)
-                ->findOrFail($id);
-
+            $category = PostCategory::findOrFail($id);
             $category->delete();
 
             return response()->json([

@@ -22,6 +22,7 @@ class StorePostCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'client_id' => ['required', 'integer', 'exists:clients,id'],
             'name' => ['required', 'string', 'max:255'],
         ];
     }
@@ -34,6 +35,8 @@ class StorePostCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'client_id.required' => 'The client ID field is required.',
+            'client_id.exists' => 'The selected client does not exist.',
             'name.required' => 'The name field is required.',
         ];
     }

@@ -2650,7 +2650,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <small class="badge badge-darkred">requires authentication</small>
 </p>
 
-<p>Retrieve a paginated list of all post categories for the authenticated user's client.</p>
+<p>Retrieve a paginated list of all post categories, optionally filtered by client_id.</p>
 
 <span id="example-requests-GETapi-post-categories">
 <blockquote>Example request:</blockquote>
@@ -2658,7 +2658,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost/api/post-categories?page=1&amp;per_page=15" \
+    --get "http://localhost/api/post-categories?page=1&amp;per_page=15&amp;client_id=1" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json"</code></pre></div>
 
@@ -2671,6 +2671,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 const params = {
     "page": "1",
     "per_page": "15",
+    "client_id": "1",
 };
 Object.keys(params)
     .forEach(key =&gt; url.searchParams.append(key, params[key]));
@@ -2718,16 +2719,6 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;message&quot;: &quot;Unauthenticated.&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (422):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;success&quot;: false,
-    &quot;message&quot;: &quot;User is not associated with any client.&quot;
 }</code>
  </pre>
     </span>
@@ -2827,6 +2818,18 @@ You can check the Dev Tools console for debugging information.</code></pre>
     <br>
 <p>Number of items per page (default: 15). Example: <code>15</code></p>
             </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>client_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="client_id"                data-endpoint="GETapi-post-categories"
+               value="1"
+               data-component="query">
+    <br>
+<p>Filter categories by client ID. Example: <code>1</code></p>
+            </div>
                 </form>
 
                     <h2 id="post-categories-management-POSTapi-post-categories">Create a new post category</h2>
@@ -2835,7 +2838,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <small class="badge badge-darkred">requires authentication</small>
 </p>
 
-<p>Create a new post category for the authenticated user's client.</p>
+<p>Create a new post category.</p>
 
 <span id="example-requests-POSTapi-post-categories">
 <blockquote>Example request:</blockquote>
@@ -2847,6 +2850,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
+    \"client_id\": 1,
     \"name\": \"Category Name\"
 }"
 </code></pre></div>
@@ -2863,6 +2867,7 @@ const headers = {
 };
 
 let body = {
+    "client_id": 1,
     "name": "Category Name"
 };
 
@@ -2908,7 +2913,15 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;success&quot;: false,
-    &quot;message&quot;: &quot;User is not associated with any client.&quot;
+    &quot;message&quot;: &quot;Validation failed&quot;,
+    &quot;errors&quot;: {
+        &quot;client_id&quot;: [
+            &quot;The client ID field is required.&quot;
+        ],
+        &quot;name&quot;: [
+            &quot;The name field is required.&quot;
+        ]
+    }
 }</code>
  </pre>
     </span>
@@ -2985,6 +2998,18 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </div>
                                 <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
         <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>client_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="client_id"                data-endpoint="POSTapi-post-categories"
+               value="1"
+               data-component="body">
+    <br>
+<p>The ID of the client. Example: <code>1</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>name</code></b>&nbsp;&nbsp;
 <small>string</small>&nbsp;
  &nbsp;
@@ -3068,16 +3093,6 @@ fetch(url, {
 <code class="language-json" style="max-height: 300px;">{
     &quot;success&quot;: false,
     &quot;message&quot;: &quot;Post category not found&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (422):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;success&quot;: false,
-    &quot;message&quot;: &quot;User is not associated with any client.&quot;
 }</code>
  </pre>
     </span>
@@ -3185,6 +3200,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
+    \"client_id\": 1,
     \"name\": \"Updated Category Name\"
 }"
 </code></pre></div>
@@ -3201,6 +3217,7 @@ const headers = {
 };
 
 let body = {
+    "client_id": 1,
     "name": "Updated Category Name"
 };
 
@@ -3256,7 +3273,12 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;success&quot;: false,
-    &quot;message&quot;: &quot;User is not associated with any client.&quot;
+    &quot;message&quot;: &quot;Validation failed&quot;,
+    &quot;errors&quot;: {
+        &quot;client_id&quot;: [
+            &quot;The client ID field is required.&quot;
+        ]
+    }
 }</code>
  </pre>
     </span>
@@ -3346,6 +3368,18 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </div>
                             <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
         <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>client_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="client_id"                data-endpoint="PUTapi-post-categories--id-"
+               value="1"
+               data-component="body">
+    <br>
+<p>The ID of the client. Example: <code>1</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>name</code></b>&nbsp;&nbsp;
 <small>string</small>&nbsp;
 <i>optional</i> &nbsp;
@@ -3423,16 +3457,6 @@ fetch(url, {
 <code class="language-json" style="max-height: 300px;">{
     &quot;success&quot;: false,
     &quot;message&quot;: &quot;Post category not found&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (422):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;success&quot;: false,
-    &quot;message&quot;: &quot;User is not associated with any client.&quot;
 }</code>
  </pre>
     </span>
