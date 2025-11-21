@@ -22,7 +22,7 @@ class UpdatePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['sometimes', 'required', 'integer', 'exists:users,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'client_id' => ['required', 'integer', 'exists:clients,id'],
             'post_category_id' => ['sometimes', 'required', 'integer', 'exists:posts_categories,id'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
