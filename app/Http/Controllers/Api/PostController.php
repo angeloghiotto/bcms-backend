@@ -495,6 +495,51 @@ class PostController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
+            
+            // Delete the featured image from R2/S3 if it exists
+            if ($post->image_url) {
+                try {
+                    $imageUrl = $post->image_url;
+                    $publicUrl = env('R2_PUBLIC_URL_POSTS');
+                    
+                    // Extract path from URL
+                    if ($publicUrl) {
+                        // Extract path from R2_PUBLIC_URL_POSTS
+                        $baseUrl = rtrim($publicUrl, '/') . '/';
+                        if (strpos($imageUrl, $baseUrl) === 0) {
+                            $imagePath = substr($imageUrl, strlen($baseUrl));
+                            Storage::disk('s3')->delete($imagePath);
+                        }
+                    } else {
+                        // Fallback: try to extract from endpoint or standard S3 URL
+                        $bucket = config('filesystems.disks.s3.bucket');
+                        $endpoint = config('filesystems.disks.s3.endpoint');
+                        
+                        if ($endpoint) {
+                            $baseUrl = rtrim($endpoint, '/') . '/' . $bucket . '/';
+                            if (strpos($imageUrl, $baseUrl) === 0) {
+                                $imagePath = substr($imageUrl, strlen($baseUrl));
+                                Storage::disk('s3')->delete($imagePath);
+                            }
+                        } else {
+                            // Standard S3: extract path after bucket
+                            $parsedUrl = parse_url($imageUrl);
+                            if (isset($parsedUrl['path'])) {
+                                $imagePath = ltrim($parsedUrl['path'], '/');
+                                // Remove bucket name from path if present
+                                if (strpos($imagePath, $bucket . '/') === 0) {
+                                    $imagePath = substr($imagePath, strlen($bucket . '/'));
+                                }
+                                Storage::disk('s3')->delete($imagePath);
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue with post deletion
+                    // The image deletion failure shouldn't prevent post deletion
+                }
+            }
+            
             $post->delete();
 
             return response()->json([
