@@ -112,7 +112,23 @@ class AuthController extends Controller
      *       "created_at": "2024-01-01T00:00:00.000000Z",
      *       "admin": false
      *     },
+     *     "client_id": 1,
      *     "token": "1|xxxxxxxxxxxxx"
+     *   }
+     * }
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Login successful",
+     *   "data": {
+     *     "user": {
+     *       "id": 2,
+     *       "name": "Jane Smith",
+     *       "email": "jane@example.com",
+     *       "created_at": "2024-01-01T00:00:00.000000Z",
+     *       "admin": false
+     *     },
+     *     "client_id": null,
+     *     "token": "2|xxxxxxxxxxxxx"
      *   }
      * }
      * @response 422 {
@@ -143,6 +159,10 @@ class AuthController extends Controller
             /** @var User $user */
             $user = Auth::user();
 
+            // Get the first client associated with the user (if any)
+            $firstClient = $user->clients()->first();
+            $clientId = $firstClient ? $firstClient->id : null;
+
             // Revoke all existing tokens (optional - for single device login)
             // $user->tokens()->delete();
 
@@ -160,6 +180,7 @@ class AuthController extends Controller
                         'created_at' => $user->created_at,
                         'admin' => $user->admin,
                     ],
+                    'client_id' => $clientId,
                     'token' => $token,
                 ],
             ], 200);
